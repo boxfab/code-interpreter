@@ -1,0 +1,2 @@
+boxfab==0.1.0a3
+python-dotenv==1.2.2

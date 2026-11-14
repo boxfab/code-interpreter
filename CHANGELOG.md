@@ -1,0 +1,15 @@
+# Changelog
+
+Upstream template changes are in `template/CHANGELOG-E2B.md`.
+
+## Unreleased
+
+- First version: the code interpreter sandbox template generated from `e2b-dev/code-interpreter`
+  `c49b7860` (template 0.4.8), built with the BoxFab SDK, with the hostname `boxfab.local`.
+- Workflows as upstream's: `pull_request.yml` (build a throwaway template, run `tests/`, delete it)
+  and `lint.yml` (ruff).
+- `tests/`: upstream's end-to-end tests of the template (91 passed against a build of this
+  template on BoxFab, 2026-11-14).
+- `README.md` and `template/README.md` generated from upstream's, with BoxFab's introduction and
+  Under the hood; upstream's `Makefile` and `template/requirements-dev.txt` (with the BoxFab SDK)
+  taken over.

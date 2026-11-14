@@ -1,0 +1,8 @@
+{
+  "name": "e2b-sdk-check",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@e2b/code-interpreter": "2.9.0"
+  }
+}

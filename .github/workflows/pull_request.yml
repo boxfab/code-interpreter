@@ -1,0 +1,123 @@
+name: Pull Request
+
+# As upstream's pull request workflow: build a throwaway template from the pull request on BoxFab,
+# run tests/ against it, delete it. Also checks E2B's own Code Interpreter SDKs against it. Uses the `ci` environment's BOXFAB_API_KEY (a test team's key);
+# pull requests from forks get no secrets. Also runnable by hand (workflow_dispatch), e.g. on main.
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-template:
+    name: Build template
+    runs-on: ubuntu-latest
+    environment: ci
+    timeout-minutes: 40
+    outputs:
+      template_id: ${{ steps.build-template.outputs.template_id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.11.32"
+          python-version: "3.11"
+          activate-environment: true
+      - name: Install development dependencies
+        working-directory: ./template
+        run: uv pip install -r requirements-dev.txt
+      - name: Generate template name
+        id: generate-template-name
+        run: echo "template_name=boxfab-code-interpreter-ci-$(uuidgen)" >> "$GITHUB_OUTPUT"
+      - name: Build template
+        id: build-template
+        working-directory: ./template
+        run: python build_ci.py
+        env:
+          BOXFAB_API_KEY: ${{ secrets.BOXFAB_API_KEY }}
+          BOXFAB_TESTS_TEMPLATE: ${{ steps.generate-template-name.outputs.template_name }}
+
+  code-interpreter-tests:
+    name: Code Interpreter - HTTP tests
+    needs: [build-template]
+    runs-on: ubuntu-latest
+    environment: ci
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ./tests
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.11.32"
+          python-version: "3.11"
+      - name: Install dependencies
+        run: uv sync --locked
+      - name: Run tests
+        run: uv run pytest --verbose --numprocesses=1
+        env:
+          BOXFAB_API_KEY: ${{ secrets.BOXFAB_API_KEY }}
+          BOXFAB_TESTS_TEMPLATE: ${{ needs.build-template.outputs.template_id }}
+
+  e2b-sdk-check:
+    # The README says E2B's own Code Interpreter SDKs work with BoxFab (E2B_DOMAIN, E2B_API_KEY):
+    # check it with the versions named there, against the same template.
+    name: E2B Code Interpreter SDKs
+    needs: [build-template]
+    runs-on: ubuntu-latest
+    environment: ci
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ./.github/e2b-sdk-check
+    env:
+      E2B_DOMAIN: boxfab.io
+      E2B_API_KEY: ${{ secrets.BOXFAB_API_KEY }}
+      TEMPLATE: ${{ needs.build-template.outputs.template_id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.11.32"
+          python-version: "3.11"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+      - name: Python, e2b-code-interpreter 2.11.6
+        run: uv run --no-project --with "e2b-code-interpreter==2.11.6" python check.py
+      - name: JavaScript, @e2b/code-interpreter 2.9.0
+        run: npm install --no-audit --no-fund && node check.mjs
+
+  cleanup-build-template:
+    name: Cleanup build template
+    needs: [build-template, code-interpreter-tests, e2b-sdk-check]
+    if: always() && needs.build-template.outputs.template_id != ''
+    runs-on: ubuntu-latest
+    environment: ci
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+      - name: Install BoxFab CLI
+        run: npm install -g @boxfab/cli@0.1.0-alpha.4
+      - name: Delete the template
+        run: boxfab template delete -y "$TEMPLATE"
+        env:
+          BOXFAB_API_KEY: ${{ secrets.BOXFAB_API_KEY }}
+          TEMPLATE: ${{ needs.build-template.outputs.template_id }}

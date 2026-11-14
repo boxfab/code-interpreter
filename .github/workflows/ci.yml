@@ -1,0 +1,47 @@
+name: CI
+
+# Offline checks only: no credentials in this workflow. The SDKs and their tests are in
+# boxfab/python-sdk and boxfab/js-sdk (code-interpreter/).
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  template:
+    # The template definition must render with the BoxFab SDK (no build, no credentials).
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - run: pip install -r template/requirements-dev.txt
+      - name: Docker variant renders
+        run: cd template && python build_docker.py > /tmp/Dockerfile && grep -q '^FROM python:3.13' /tmp/Dockerfile
+      - name: Sandbox variant renders, with the hostname step
+        run: |
+          cd template
+          python -c "from boxfab import Template; from template import make_template; print(Template.to_dockerfile(make_template()))" > /tmp/Sandbox.Dockerfile
+          grep -q 'hostname boxfab.local' /tmp/Sandbox.Dockerfile
+
+  generated-code-is-in-sync:
+    # Generated paths must be exactly what scripts/sync_upstream.py produces from the pin.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - run: python scripts/sync_upstream.py
+      - run: git status --porcelain && git diff --exit-code && test -z "$(git status --porcelain)"
