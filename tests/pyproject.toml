@@ -4,7 +4,7 @@ version = "0.0.0"
 description = "HTTP-level test suite for the BoxFab Code Interpreter template"
 requires-python = ">=3.11"
 dependencies = [
-    "boxfab>=0.1.0a3,<0.2",
+    "boxfab>=0.1.0a4,<0.2",
     "httpx>=0.28.1,<1",
     "pytest>=9.0.3,<10",
     "pytest-asyncio>=1.3.0,<2",

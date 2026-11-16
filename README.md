@@ -29,10 +29,10 @@ pip install boxfab-code-interpreter
 ```
 
 ### 2. Get your BoxFab API key
-1. Get your API key in the [BoxFab dashboard](https://dashboard.boxfab.io).
+1. Get your API key in the [BoxFab dashboard](https://dashboard.us-west.boxfab.io).
 2. Set environment variable with your API key.
 ```
-BOXFAB_API_KEY=e2b_***
+export BOXFAB_API_KEY=e2b_***
 ```
 
 ### 3. Execute code with code interpreter inside Sandbox
@@ -74,7 +74,7 @@ BoxFab SDK. [UPSTREAM.md](UPSTREAM.md) lists every change.
 variables, the domain first:
 
 ```bash
-export E2B_DOMAIN=boxfab.io
+export E2B_DOMAIN=us-west.boxfab.dev
 export E2B_API_KEY="<your BoxFab API key>"
 ```
 

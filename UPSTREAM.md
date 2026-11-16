@@ -36,7 +36,7 @@ files: `overlay/`, `scripts/`, `.github/`, `tests/uv.lock`, this file and `CHANG
 |---|---|
 | `pull_request.yml` (with `build_test_template.yml`, `code_interpreter_tests.yml`, `cleanup_build_template.yml`) | `pull_request.yml`: the same three steps in one workflow (build a throwaway template, run `tests/`, delete it with `@boxfab/cli`), with the `ci` environment's key, plus a check of E2B's own Code Interpreter SDKs (`.github/e2b-sdk-check/`) against the same template; also runnable by hand |
 | `lint.yml` | `lint.yml`: ruff lint and format check of `template/` and `tests/`, without pnpm |
-| `build_prod_template.yml`, `release.yml` | not taken over: the platform template is built by hand with the seed team's key |
+| `build_prod_template.yml`, `release.yml` | not taken over: the platform template `code-interpreter-v1` is built by hand by BoxFab |
 | `validate-renovate-config.yaml`, `.github/scripts/` | not taken over (Renovate and Changesets are not used) |
 | none | `ci.yml`: the template renders offline, and the generated files match `scripts/sync_upstream.py` |
 

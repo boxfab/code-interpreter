@@ -84,7 +84,7 @@ jobs:
       run:
         working-directory: ./.github/e2b-sdk-check
     env:
-      E2B_DOMAIN: boxfab.io
+      E2B_DOMAIN: us-west.boxfab.dev
       E2B_API_KEY: ${{ secrets.BOXFAB_API_KEY }}
       TEMPLATE: ${{ needs.build-template.outputs.template_id }}
     steps:
@@ -115,7 +115,7 @@ jobs:
         with:
           node-version: "22"
       - name: Install BoxFab CLI
-        run: npm install -g @boxfab/cli@0.1.0-alpha.4
+        run: npm install -g @boxfab/cli@0.1.0-alpha.5
       - name: Delete the template
         run: boxfab template delete -y "$TEMPLATE"
         env:

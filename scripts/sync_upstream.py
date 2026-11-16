@@ -138,7 +138,7 @@ def sync_template(up: Path):
 # --------------------------------------------------------------------------------------------
 # template/README.md: upstream's guide, renamed, with "Under the hood" at the end.
 
-BOXFAB_SDK = "0.1.0a3"  # the BoxFab SDK version the build scripts are installed with
+BOXFAB_SDK = "0.1.0a4"  # the BoxFab SDK version the build scripts are installed with
 
 TEMPLATE_README_EXACT = [
     ("E2B_API_KEY=e2b_***", "BOXFAB_API_KEY=e2b_***", 2),
@@ -215,7 +215,7 @@ TESTS_EXACT = [
     ("tests/README.md", "E2B_API_KEY=... uv run pytest", "BOXFAB_API_KEY=... uv run pytest", 1),
     ("tests/README.md", "Set `E2B_DEBUG=true`", "Set `BOXFAB_DEBUG=true`", 1),
     ("tests/.env.example", "E2B_API_KEY=\n", "BOXFAB_API_KEY=\n", 1),
-    ("tests/.env.example", "# Optional, defaults to e2b.app\nE2B_DOMAIN=\n", "# Optional, defaults to boxfab.io\nBOXFAB_DOMAIN=\n", 1),
+    ("tests/.env.example", "# Optional, defaults to e2b.app\nE2B_DOMAIN=\n", "# Optional, defaults to us-west.boxfab.dev\nBOXFAB_DOMAIN=\n", 1),
     ("tests/.env.example", "E2B_TESTS_TEMPLATE=\n", "BOXFAB_TESTS_TEMPLATE=\n", 1),
     ("tests/.env.example", "E2B_DEBUG=\n", "BOXFAB_DEBUG=\n", 1),
 ]

@@ -27,9 +27,9 @@ pip install boxfab-code-interpreter
 ```
 
 ### 2. Get your BoxFab API key
-1. Get your API key in the [BoxFab dashboard](https://dashboard.boxfab.io).
+1. Get your API key in the [BoxFab dashboard](https://dashboard.us-west.boxfab.io).
 2. Set environment variable with your API key.
 ```
-BOXFAB_API_KEY=e2b_***
+export BOXFAB_API_KEY=e2b_***
 ```
 
